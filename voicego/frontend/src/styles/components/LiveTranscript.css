@@ -1,0 +1,8 @@
+/* Live transcript of the user's speech (streamed via Web Speech API) */
+.live-transcript {
+    min-height: 1.4em;
+    font-size: clamp(1rem, 3.4vw, 1.3rem);
+    color: var(--color-accent-blue);
+    font-style: italic;
+    opacity: 0.95;
+}

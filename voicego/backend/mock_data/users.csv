@@ -1,0 +1,7 @@
+_id,full_name,email,phone,password,role,total_reward_points
+demo-passenger-visual,Minh Anh,minhanh.voicego@example.com,0900000001,password123,passenger,0
+demo-passenger-wheelchair,Quoc Bao,quocbao.voicego@example.com,0900000003,password123,passenger,0
+demo-passenger-hearing,Tran Thi B,tranthib@example.com,0900000004,password123,passenger,0
+demo-passenger-elderly,Le Van C,levanc@example.com,0900000005,password123,passenger,0
+demo-driver-user-a,Nguyen Van A,driver.a@example.com,0900000002,password123,driver,0
+demo-driver-user-b,Pham Van D,driver.b@example.com,0900000006,password123,driver,0

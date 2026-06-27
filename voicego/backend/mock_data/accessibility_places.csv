@@ -1,0 +1,5 @@
+_id,place_id,disability_accessible_entrance,accessibility_score,score_count
+acc-place-iu,place-iu,true,4.0,3
+acc-place-ben-thanh,place-ben-thanh,true,4.4,5
+acc-place-crescent,place-crescent,true,4.7,8
+acc-place-bach-khoa,place-bach-khoa,false,3.2,4

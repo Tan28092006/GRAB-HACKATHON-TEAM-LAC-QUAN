@@ -1,0 +1,5 @@
+_id,user_id,disability_type,needs_driver_assistance
+prof-1,demo-passenger-visual,visual_impairment,true
+prof-2,demo-passenger-wheelchair,wheelchair,true
+prof-3,demo-passenger-hearing,hearing_impairment,false
+prof-4,demo-passenger-elderly,elderly,true

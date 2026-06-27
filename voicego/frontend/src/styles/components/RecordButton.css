@@ -1,0 +1,74 @@
+/* RecordButton.css — Bottom: giant hold-to-talk button + typed fallback bar
+ * Ported from voicego/css/voice.css
+ */
+
+.record-btn {
+  flex: 1 1 32%;
+  min-height: 150px;
+  border: none;
+  margin: 8px 16px;
+  border-radius: 28px;
+  background: linear-gradient(160deg, var(--color-accent-blue), #1f6fb0);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+}
+
+.record-btn:active,
+.record-btn.recording {
+  background: linear-gradient(160deg, var(--color-accent-red), #b5302c);
+  transform: scale(0.99);
+  box-shadow: 0 0 0 6px rgba(239, 83, 80, .25), var(--shadow-lg);
+}
+
+.record-btn.recording .mic-icon {
+  animation: pulse 0.9s infinite;
+}
+
+.mic-icon {
+  font-size: clamp(3rem, 14vw, 5.5rem);
+}
+
+.record-label {
+  font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+  font-weight: 700;
+}
+
+/* ── Typed fallback bar ──────────────────────────────────── */
+.text-fallback-bar {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px 16px;
+  background: var(--color-bg-secondary);
+  touch-action: auto;
+}
+
+.text-fallback-bar input[type="text"],
+.text-fallback-bar .text-fallback-input {
+  flex: 1;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-surface);
+  border-radius: 10px;
+  color: var(--color-text-primary);
+  padding: 12px 14px;
+  font-size: 1rem;
+}
+
+.text-fallback-bar button,
+.text-fallback-bar .text-send-btn {
+  background: var(--color-accent-green);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}

@@ -1,0 +1,48 @@
+/* MapView.css — Route preview map (pan/zoom enabled)
+ * Ported from voicego/css/voice.css
+ */
+
+.route-map {
+  flex: 0 0 30vh;
+  width: 100%;
+  background: #1a1a1a;
+  border-bottom: 1px solid var(--color-surface);
+  touch-action: auto;
+  cursor: grab;
+}
+
+.route-map:active {
+  cursor: grabbing;
+}
+
+/* ── Leaflet marker overrides for dark-theme consistency ── */
+.route-map .leaflet-popup-content-wrapper {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.route-map .leaflet-popup-tip {
+  background: var(--color-bg-card);
+}
+
+.route-map .leaflet-control-zoom a {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border-color: var(--color-surface);
+}
+
+.route-map .leaflet-control-zoom a:hover {
+  background: var(--color-bg-card-hover);
+}
+
+.route-map .leaflet-control-attribution {
+  background: rgba(15, 17, 23, 0.7);
+  color: var(--color-text-muted);
+  font-size: 10px;
+}
+
+.route-map .leaflet-control-attribution a {
+  color: var(--color-text-secondary);
+}

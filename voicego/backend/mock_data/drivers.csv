@@ -1,0 +1,3 @@
+_id,user_id,vehicle_type,vehicle_model,license_plate,has_low_step_vehicle,accessibility_training_completed,rating
+demo-driver-a,demo-driver-user-a,electric_bike,GrabBike EV,59-X1 234.56,true,true,4.92
+demo-driver-b,demo-driver-user-b,car,GrabCar 4 seats,51G-123.45,false,true,4.85

@@ -1,0 +1,47 @@
+/* Header.css — Top bar with title, back link, and backend status dot
+ * Ported from voicego/css/voice.css
+ */
+
+.voice-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-surface);
+}
+
+.voice-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-accent-green);
+}
+
+.voice-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.back-link {
+  font-size: 1.4rem;
+  text-decoration: none;
+}
+
+.backend-dot {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 12px;
+}
+
+.backend-dot.online {
+  background: rgba(0, 200, 83, .15);
+  color: var(--color-accent-green);
+}
+
+.backend-dot.offline {
+  background: rgba(255, 255, 255, .06);
+  color: var(--color-text-secondary);
+}

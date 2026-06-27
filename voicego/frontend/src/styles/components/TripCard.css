@@ -1,0 +1,57 @@
+/* TripCard.css — Trip card: pickup (fixed) + destination (filled by the AI)
+ * Ported from voicego/css/voice.css
+ */
+
+.trip-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 18px;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-surface);
+}
+
+.trip-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.trip-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+
+.trip-dot.red {
+  background: var(--color-accent-red);
+}
+
+.trip-dot.green {
+  background: var(--color-accent-green);
+}
+
+.trip-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  width: 64px;
+  flex: 0 0 auto;
+}
+
+.trip-value {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trip-value.muted {
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-style: italic;
+}
