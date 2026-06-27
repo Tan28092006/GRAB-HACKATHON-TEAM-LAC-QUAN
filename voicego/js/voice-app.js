@@ -46,8 +46,6 @@ class VoiceBookingApp {
             recordBtn: document.getElementById("record-btn"),
             gestureZone: document.getElementById("gesture-zone"),
             backendDot: document.getElementById("backend-dot"),
-            textInput: document.getElementById("text-fallback"),
-            textSend: document.getElementById("text-send"),
             liveTranscript: document.getElementById("live-transcript"),
             agentOverlay: document.getElementById("agent-overlay"),
             agentLog: document.getElementById("agent-log"),
@@ -169,7 +167,7 @@ class VoiceBookingApp {
     async startListening() {
         if (this.busy || this.recording || this._starting) return;
         if (!BACKEND_URL) {
-            this.announce("Chế độ ngoại tuyến.", "Hãy gõ điểm đến ở ô bên dưới, hoặc chạy server agent.", true);
+            this.announce("Chế độ ngoại tuyến.", "Cần chạy server agent để dùng giọng nói.", true);
             return;
         }
         this._starting = true;
@@ -184,7 +182,7 @@ class VoiceBookingApp {
         } catch (e) {
             this._starting = false;
             this._clearRecUI();
-            this.announce("Không truy cập được micro.", "Bạn có thể gõ lệnh ở ô bên dưới.", true);
+            this.announce("Không truy cập được micro.", "Hãy cho phép micro rồi chạm nút thử lại.", true);
             return;
         }
         this._starting = false;
@@ -391,15 +389,6 @@ class VoiceBookingApp {
                 if (this.recording || this._starting) this.stopListening();
                 else this.startListening();
             });
-        }
-
-        if (this.els.textSend && this.els.textInput) {
-            const submit = () => {
-                const v = this.els.textInput.value.trim();
-                if (v) { this.els.textInput.value = ""; this._send(v); }
-            };
-            this.els.textSend.addEventListener("click", submit);
-            this.els.textInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
         }
 
         if (this.els.agentOverlay) {
