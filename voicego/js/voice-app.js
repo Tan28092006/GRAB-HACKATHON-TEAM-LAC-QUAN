@@ -28,6 +28,9 @@ class VoiceBookingApp {
     constructor() {
         this.recorder = new VoiceRecorder();
         this.busy = false;
+        this.recording = false;
+        this._starting = false;
+        this._wantStop = false;
         this.messages = [];          // conversation history (sent to the agent each turn)
         this.origin = ORIGIN;
         this.gps = { lat: ORIGIN.lat, lng: ORIGIN.lng };
@@ -138,27 +141,54 @@ class VoiceBookingApp {
     }
 
     // ----- Recording (hold-to-talk) -----------------------------------------
+    _clearRecUI() {
+        this.recording = false;
+        if (this.els.recordBtn) this.els.recordBtn.classList.remove("recording");
+        this._stopLiveTranscript();
+    }
+
     async startListening() {
-        if (this.busy || this.recording) return;
+        if (this.busy || this.recording || this._starting) return;
         if (!BACKEND_URL) {
             this.announce("Chế độ ngoại tuyến.", "Hãy gõ điểm đến ở ô bên dưới, hoặc chạy server agent.", true);
             return;
         }
-        try { await this.recorder.start(); }
-        catch (e) { this.announce("Không truy cập được micro.", "Bạn có thể gõ lệnh ở ô bên dưới.", true); return; }
-        this.recording = true;
+        // Instant feedback (mic startup is async — show we're listening right away)
+        this._starting = true;
+        this._wantStop = false;
         this._vibrate(40);
         if (this.els.recordBtn) this.els.recordBtn.classList.add("recording");
-        this.announce("Đang nghe…", "Nói điểm đến, ví dụ: cho tôi đến bệnh viện Chợ Rẫy.");
+        this.announce("Đang nghe…", "Giữ nút và nói điểm đến, thả tay khi nói xong.");
         this._startLiveTranscript();
+
+        try {
+            await this.recorder.start();
+        } catch (e) {
+            this._starting = false;
+            this._clearRecUI();
+            this.announce("Không truy cập được micro.", "Bạn có thể gõ lệnh ở ô bên dưới.", true);
+            return;
+        }
+        this._starting = false;
+
+        // If the user already released while the mic was starting up, discard.
+        if (this._wantStop) {
+            try { this.recorder.stop(); } catch (e) {}
+            this._clearRecUI();
+            this.announce("Hãy giữ nút lâu hơn một chút rồi nói nhé.", "");
+            return;
+        }
+        this.recording = true;
     }
 
     async stopListening() {
+        // Released during mic startup -> tell startListening to discard.
+        if (this._starting) { this._wantStop = true; return; }
         if (!this.recording) return;
         this.recording = false;
         const wav = this.recorder.stop();
-        this._stopLiveTranscript();
         if (this.els.recordBtn) this.els.recordBtn.classList.remove("recording");
+        this._stopLiveTranscript();
         this.announce("Đang nhận diện…", "");
         try {
             const fd = new FormData();
@@ -287,12 +317,15 @@ class VoiceBookingApp {
     _bindGestures() {
         const btn = this.els.recordBtn;
         if (btn) {
-            const start = (e) => { e.preventDefault(); this.startListening(); };
-            const stop = (e) => { e.preventDefault(); this.stopListening(); };
-            btn.addEventListener("pointerdown", start);
-            btn.addEventListener("pointerup", stop);
-            btn.addEventListener("pointerleave", stop);
-            btn.addEventListener("pointercancel", stop);
+            btn.addEventListener("pointerdown", (e) => {
+                e.preventDefault();
+                try { btn.setPointerCapture(e.pointerId); } catch (_) {}
+                this.startListening();
+            });
+            // Pointer capture keeps events on the button even if the finger drifts,
+            // so only release/cancel ends recording (no accidental early stop).
+            btn.addEventListener("pointerup", (e) => { e.preventDefault(); this.stopListening(); });
+            btn.addEventListener("pointercancel", () => this.stopListening());
         }
 
         const zone = this.els.gestureZone;
