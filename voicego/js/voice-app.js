@@ -336,7 +336,16 @@ class VoiceBookingApp {
             if (ui.booked) {
                 await this._showBooked(ui.booked, reply);
                 this.busy = false;
+                this._resetTrip();
                 return; // conversation done — no auto-listen
+            }
+            // User cancelled / ended -> say goodbye then STOP (no auto-listen).
+            if (ui.ended) {
+                this.announce(reply || "Đã huỷ.", "", false);
+                this.busy = false;
+                await this.speak(reply || "Đã huỷ chuyến. Cảm ơn bạn.");
+                this._resetTrip();
+                return;
             }
             // Speak the reply, then automatically listen again (hands-free).
             this.announce(reply || "…", "", false);
