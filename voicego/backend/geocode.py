@@ -73,7 +73,8 @@ def _parse_json(raw):
         return None
 
 
-def _nominatim(address):
+def _nominatim_full(address):
+    """Return (lat, lng, display_name) for an address/POI, or None."""
     try:
         r = requests.get(
             NOMINATIM_URL,
@@ -83,10 +84,18 @@ def _nominatim(address):
         )
         arr = r.json()
         if arr:
-            return float(arr[0]["lat"]), float(arr[0]["lon"])
+            disp = arr[0].get("display_name", "")
+            disp = disp.replace(", Việt Nam", "").strip()
+            disp = re.sub(r",?\s*\d{5,6}\b", "", disp)  # drop postcode
+            return float(arr[0]["lat"]), float(arr[0]["lon"]), disp
     except Exception:  # noqa: BLE001
         pass
     return None
+
+
+def _nominatim(address):
+    r = _nominatim_full(address)
+    return (r[0], r[1]) if r else None
 
 
 def _build_prompt(text, user_lat, user_lng, grounded):
@@ -138,15 +147,24 @@ def resolve_destination(text, user_lat=None, user_lng=None):
     name = g.get("name") or text
     g_lat, g_lng = g.get("latitude"), g.get("longitude")
 
-    coords = _nominatim(address)
+    # Coords priority: a real POI lookup by NAME / raw text beats an LLM-guessed
+    # address (which can be hallucinated — e.g. 8b put "Vạn Hạnh Mall" in Quận 5).
+    # The LLM address is tried only after, and the model's own coords last.
+    coords = None
     source = "nominatim"
+    for cand in (f"{name}, Thành phố Hồ Chí Minh",
+                 f"{text}, Thành phố Hồ Chí Minh",
+                 address):
+        if cand and cand.strip():
+            hit = _nominatim_full(cand)
+            if hit:
+                coords = (hit[0], hit[1])
+                if hit[2]:
+                    address = hit[2]  # use Nominatim's REAL address (matches coords)
+                break
     if not coords and isinstance(g_lat, (int, float)) and isinstance(g_lng, (int, float)):
         coords = (float(g_lat), float(g_lng))
-        source = via  # "grounded" or "plain"
-
-    if not coords:
-        coords = _nominatim(f"{text}, Thành phố Hồ Chí Minh, Việt Nam")
-        source = "nominatim_raw"
+        source = via  # "grounded" or "groq"
     if not coords:
         return {"ok": False, "reason": "no_coords", "name": name, "address": address}
 
