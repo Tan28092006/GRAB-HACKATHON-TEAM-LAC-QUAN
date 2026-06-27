@@ -219,6 +219,39 @@ def seed_demo_data():
             "created_at": now,
             "updated_at": now,
         },
+        {
+            "_id": "demo-passenger-hearing",
+            "full_name": "Tran Thi B",
+            "email": "tranthib@example.com",
+            "phone": "0900000004",
+            "password": password_hash,
+            "role": "passenger",
+            "total_reward_points": 0,
+            "created_at": now,
+            "updated_at": now,
+        },
+        {
+            "_id": "demo-passenger-elderly",
+            "full_name": "Le Van C",
+            "email": "levanc@example.com",
+            "phone": "0900000005",
+            "password": password_hash,
+            "role": "passenger",
+            "total_reward_points": 0,
+            "created_at": now,
+            "updated_at": now,
+        },
+        {
+            "_id": "demo-driver-user-b",
+            "full_name": "Pham Van D",
+            "email": "driver.b@example.com",
+            "phone": "0900000006",
+            "password": password_hash,
+            "role": "driver",
+            "total_reward_points": 0,
+            "created_at": now,
+            "updated_at": now,
+        },
     ]
     for user in users:
         db.users.update_one({"_id": user["_id"]}, {"$setOnInsert": user}, upsert=True)
@@ -226,6 +259,8 @@ def seed_demo_data():
     profiles = [
         (DEMO_PASSENGER_ID, "visual_impairment", True),
         ("demo-passenger-wheelchair", "wheelchair", True),
+        ("demo-passenger-hearing", "hearing_impairment", False),
+        ("demo-passenger-elderly", "elderly", True),
     ]
     for user_id, disability_type, needs_help in profiles:
         update_accessibility_profile(user_id, {
@@ -244,6 +279,23 @@ def seed_demo_data():
             "has_low_step_vehicle": True,
             "accessibility_training_completed": True,
             "rating": 4.92,
+            "created_at": now,
+            "updated_at": now,
+        }},
+        upsert=True,
+    )
+
+    db.drivers.update_one(
+        {"_id": "demo-driver-b"},
+        {"$setOnInsert": {
+            "_id": "demo-driver-b",
+            "user_id": "demo-driver-user-b",
+            "vehicle_type": "car",
+            "vehicle_model": "GrabCar 4 seats",
+            "license_plate": "51G-123.45",
+            "has_low_step_vehicle": False,
+            "accessibility_training_completed": True,
+            "rating": 4.85,
             "created_at": now,
             "updated_at": now,
         }},

@@ -6,8 +6,10 @@ the client) and the conversational agent loop (Groq function-calling + tools).
 """
 from fastapi import FastAPI, UploadFile, File, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response, JSONResponse
+from fastapi.responses import Response, JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+import os
 
 from data import NODES
 from voice import speech_to_text, text_to_speech, whisper_stt
@@ -17,6 +19,7 @@ from db import (
     DEMO_PASSENGER_ID,
     MongoUnavailable,
     acknowledge_driver_alert,
+    authenticate_user,
     create_accessibility_report,
     create_ride_request,
     find_nearby_accessible_places,
@@ -55,6 +58,11 @@ class GeocodeRequest(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: list[dict]
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 
 
 class AccessibilityProfileRequest(BaseModel):
@@ -133,6 +141,16 @@ def db_status():
 def db_seed():
     """Seed demo passenger, driver, and accessibility places for hackathon demos."""
     return db_response(seed_demo_data)
+
+
+@app.post("/api/auth/login")
+def login(req: LoginRequest):
+    user = db_response(authenticate_user, req.email, req.password)
+    if isinstance(user, JSONResponse):
+        return user
+    if not user:
+        return JSONResponse({"success": False, "message": "Email hoặc mật khẩu không đúng"}, status_code=401)
+    return {"success": True, "data": user}
 
 
 @app.get("/api/me")
@@ -259,3 +277,15 @@ def agent_chat(req: ChatRequest):
 def voice_geocode(req: GeocodeRequest):
     """Debug: resolve a place name to a real address + coordinates."""
     return resolve_destination(req.text, req.lat, req.lng)
+
+frontend_dist = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
+if os.path.exists(frontend_dist):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+    
+    @app.get("/{full_path:path}")
+    def serve_frontend(full_path: str):
+        file_path = os.path.join(frontend_dist, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
+
