@@ -1,0 +1,149 @@
+/* voice.css — high-contrast, large-target accessible booking UI (WCAG 2.2) */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-family);
+    overscroll-behavior: none;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.voice-header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-surface);
+}
+.voice-title { font-size: 1rem; font-weight: 700; color: var(--color-accent-green); }
+.voice-meta { display: flex; align-items: center; gap: 12px; }
+.back-link { font-size: 1.4rem; text-decoration: none; }
+
+.backend-dot {
+    font-size: 12px; font-weight: 600; padding: 2px 10px; border-radius: 12px;
+}
+.backend-dot.online { background: rgba(0,200,83,.15); color: var(--color-accent-green); }
+.backend-dot.offline { background: rgba(255,255,255,.06); color: var(--color-text-secondary); }
+
+/* Route preview map (for sighted helpers / demo viewers) */
+.route-map {
+    flex: 0 0 26vh;
+    width: 100%;
+    background: #1a1a1a;
+    border-bottom: 1px solid var(--color-surface);
+    touch-action: auto;
+}
+
+/* Status + gesture zone (large hit target for confirm/cancel) */
+.gesture-zone {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 16px;
+    padding: 18px 24px;
+    text-align: center;
+    cursor: pointer;
+    background:
+        radial-gradient(circle at 50% 30%, rgba(66,165,245,.08), transparent 60%);
+}
+
+.status-main {
+    font-size: clamp(1.6rem, 6vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.2;
+}
+.status-sub {
+    font-size: clamp(1rem, 3.6vw, 1.4rem);
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+    max-width: 640px;
+    margin: 16px auto 0;
+}
+
+.confirm-hint { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.vehicle-pill {
+    display: inline-block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #000;
+    background: var(--color-accent-amber);
+    padding: 8px 20px;
+    border-radius: 999px;
+}
+.hint-text { font-size: .85rem; color: var(--color-text-muted); }
+
+/* Bottom: giant hold-to-talk button */
+.record-btn {
+    flex: 1 1 32%;
+    min-height: 150px;
+    border: none;
+    margin: 8px 16px;
+    border-radius: 28px;
+    background: linear-gradient(160deg, var(--color-accent-blue), #1f6fb0);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    cursor: pointer;
+    box-shadow: var(--shadow-lg);
+    transition: transform .12s ease, background .2s ease, box-shadow .2s ease;
+}
+.record-btn:active,
+.record-btn.recording {
+    background: linear-gradient(160deg, var(--color-accent-red), #b5302c);
+    transform: scale(0.99);
+    box-shadow: 0 0 0 6px rgba(239,83,80,.25), var(--shadow-lg);
+}
+.record-btn.recording .mic-icon { animation: pulse 0.9s infinite; }
+.mic-icon { font-size: clamp(3rem, 14vw, 5.5rem); }
+.record-label { font-size: clamp(1.1rem, 4.5vw, 1.6rem); font-weight: 700; }
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: .7; }
+}
+
+/* Typed fallback bar */
+.text-fallback-bar {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px 16px;
+    background: var(--color-bg-secondary);
+    touch-action: auto;
+}
+#text-fallback {
+    flex: 1;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-surface);
+    border-radius: 10px;
+    color: var(--color-text-primary);
+    padding: 12px 14px;
+    font-size: 1rem;
+}
+#text-send {
+    background: var(--color-accent-green);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+}

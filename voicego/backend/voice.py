@@ -1,0 +1,142 @@
+"""
+voice.py — Thin proxies for FPT.AI Speech-to-Text (ASR) and Text-to-Speech (TTS).
+
+These two calls MUST run on the server because (a) the browser would be blocked
+by CORS calling api.fpt.ai directly and (b) we keep the API key off the client.
+Everything else (intent parsing, place matching, routing, pricing) is done in the
+browser by reusing local-engine.js — so this file stays tiny.
+"""
+import os
+import re
+import json
+import time
+import requests
+
+# Load secrets from backend/.env (never committed — see .gitignore).
+try:
+    from dotenv import load_dotenv
+    load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+except ImportError:
+    pass
+
+# Keys come ONLY from the environment / .env — no secrets hardcoded here.
+FPT_API_KEY = os.getenv("FPT_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
+ASR_URL = "https://api.fpt.ai/hmi/asr/general"
+TTS_URL = "https://api.fpt.ai/hmi/tts/v5"
+
+
+def speech_to_text(audio_bytes: bytes) -> dict:
+    """Send raw audio (wav/mp3, 16kHz mono works best) to FPT ASR."""
+    try:
+        r = requests.post(
+            ASR_URL,
+            headers={"api-key": FPT_API_KEY},
+            data=audio_bytes,
+            timeout=30,
+        )
+        j = r.json()
+    except Exception as e:  # noqa: BLE001
+        return {"text": "", "error": f"asr_failed: {e}"}
+
+    hyps = j.get("hypotheses") or []
+    text = hyps[0].get("utterance", "") if hyps else ""
+    return {"text": text.strip(), "status": j.get("status"), "raw": j}
+
+
+def text_to_speech(text: str, voice: str = "banmai", speed: str = "") -> bytes | None:
+    """
+    Call FPT TTS, then download the generated MP3 (FPT returns an async URL that
+    becomes ready after ~1s). Returns mp3 bytes or None on failure.
+    """
+    try:
+        r = requests.post(
+            TTS_URL,
+            headers={"api-key": FPT_API_KEY, "voice": voice, "speed": str(speed)},
+            data=text.encode("utf-8"),
+            timeout=15,
+        )
+        j = r.json()
+    except Exception:  # noqa: BLE001
+        return None
+
+    async_url = j.get("async")
+    if not async_url:
+        return None
+
+    # Poll the async URL until the audio is ready.
+    for _ in range(12):
+        try:
+            a = requests.get(async_url, timeout=15)
+            ctype = a.headers.get("Content-Type", "")
+            if a.status_code == 200 and ("audio" in ctype or a.content[:3] == b"ID3" or a.content[:2] == b"\xff\xfb"):
+                return a.content
+        except Exception:  # noqa: BLE001
+            pass
+        time.sleep(0.7)
+    return None
+
+
+def extract_intent(text: str, known_places: list[dict]) -> dict | None:
+    """
+    Use Gemini to parse a (possibly messy / misheard) Vietnamese booking command
+    into a structured intent, choosing the destination from the known place list.
+
+    known_places: [{"id": "n1", "name": "Bến Thành"}, ...]
+    Returns {"intent","vehicle","nodeId","destinationName","source"} or None if
+    Gemini is unavailable (caller then falls back to the on-device JS matcher).
+    """
+    if not GEMINI_API_KEY or not text.strip():
+        return None
+    try:
+        from google import genai
+    except ImportError:
+        return None
+
+    names = [p["name"] for p in known_places]
+    prompt = (
+        "Bạn là bộ phân tích lệnh đặt xe cho người khiếm thị. "
+        "Văn bản dưới đây từ nhận diện giọng nói nên có thể sai chính tả.\n"
+        f'Lệnh: "{text}"\n'
+        f"Danh sách điểm đến hợp lệ: {names}\n"
+        "Hãy chọn điểm đến GẦN ĐÚNG NHẤT trong danh sách (đúng nguyên văn), và loại xe. "
+        "bike = xe ôm/xe máy/2 bánh; car = ô tô/taxi/4 bánh (mặc định bike nếu không rõ). "
+        "Nếu không suy ra được điểm đến, để destination rỗng.\n"
+        'Chỉ trả về JSON: {"intent":"BOOK_RIDE","destination":"<tên trong danh sách hoặc rỗng>","vehicle_type":"bike|car"}'
+    )
+
+    try:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+        resp = client.models.generate_content(model=GEMINI_MODEL, contents=prompt)
+        raw = (resp.text or "").strip()
+    except Exception:  # noqa: BLE001
+        return None
+
+    m = re.search(r"\{.*\}", raw, re.DOTALL)
+    if not m:
+        return None
+    try:
+        data = json.loads(m.group(0))
+    except json.JSONDecodeError:
+        return None
+
+    dest_name = (data.get("destination") or "").strip()
+    vehicle = data.get("vehicle_type", "bike")
+    vehicle = "car" if vehicle == "car" else "bike"
+
+    node_id = None
+    for p in known_places:
+        if p["name"].strip().lower() == dest_name.lower():
+            node_id = p["id"]
+            dest_name = p["name"]
+            break
+
+    return {
+        "intent": data.get("intent", "BOOK_RIDE"),
+        "vehicle": vehicle,
+        "nodeId": node_id,
+        "destinationName": dest_name if node_id else "",
+        "source": "gemini",
+    }

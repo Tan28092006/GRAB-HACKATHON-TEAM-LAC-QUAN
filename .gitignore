@@ -1,0 +1,24 @@
+# Secrets — NEVER commit API keys
+.env
+*.env
+!*.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node / misc
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Temp / audio test artifacts
+*.mp3
+*.wav

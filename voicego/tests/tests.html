@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCharge Tests</title>
+    <style>
+        body { font-family: monospace; background: #f5f5f5; padding: 20px; }
+        .pass { color: green; }
+        .fail { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Test Results</h1>
+    <div id="test-results">Running tests...</div>
+
+    <!-- App modules under test -->
+    <script src="../js/seed-data.js"></script>
+    <script src="../js/graph.js"></script>
+    <script src="../js/local-engine.js"></script>
+    <script src="../js/voice-nlu.js"></script>
+
+    <!-- Test Framework -->
+    <script src="test-runner.js"></script>
+
+    <!-- Test Suites -->
+    <script src="test-local-engine.js"></script>
+    <script src="test-voice-nlu.js"></script>
+
+    <!-- Run -->
+    <script>
+        window.onload = () => {
+            setTimeout(() => {
+                TestRunner.run();
+            }, 100);
+        };
+    </script>
+</body>
+</html>
