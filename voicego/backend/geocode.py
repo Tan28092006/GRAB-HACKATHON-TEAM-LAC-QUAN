@@ -19,7 +19,7 @@ import math
 
 import requests
 
-from voice import GEMINI_API_KEY, GEMINI_MODEL
+from voice import GEMINI_API_KEY, GEMINI_MODEL, groq_json
 
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 
@@ -115,12 +115,14 @@ def resolve_destination(text, user_lat=None, user_lng=None):
     if not text.strip():
         return {"ok": False, "reason": "empty"}
 
-    # 1) grounded Gemini, then 2) plain Gemini.
-    g = _parse_json(_gemini_call(_build_prompt(text, user_lat, user_lng, True), grounded=True, retries=2))
+    # 1) grounded Gemini (best, real search) if available; 2) Groq plain (fast, no limit).
+    g = None
     via = "grounded"
+    if GEMINI_API_KEY:
+        g = _parse_json(_gemini_call(_build_prompt(text, user_lat, user_lng, True), grounded=True, retries=1))
     if not g:
-        g = _parse_json(_gemini_call(_build_prompt(text, user_lat, user_lng, False), grounded=False, retries=1))
-        via = "plain"
+        g = _parse_json(groq_json(_build_prompt(text, user_lat, user_lng, False)))
+        via = "groq"
 
     # 3) No model output at all -> Nominatim directly on the raw text.
     if not g:

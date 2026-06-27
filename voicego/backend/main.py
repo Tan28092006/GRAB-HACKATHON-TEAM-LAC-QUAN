@@ -1,20 +1,20 @@
 """
 main.py — FastAPI backend for VoiceGo (đặt xe bằng giọng nói cho người khiếm thị).
 
-Only does what truly needs a server: proxy FPT.AI Speech-to-Text / Text-to-Speech
-and Gemini intent parsing (CORS + keep API keys off the client). Routing and
-pricing run in the browser.
+Server-side only what needs to be: FPT.AI STT/TTS proxies (CORS + keep keys off
+the client) and the conversational agent loop (Groq function-calling + tools).
 """
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response, JSONResponse, StreamingResponse
+from fastapi.responses import Response, JSONResponse
 from pydantic import BaseModel
 
 from data import NODES
-from voice import speech_to_text, text_to_speech, extract_intent, stream_agent_narration
+from voice import speech_to_text, text_to_speech
 from geocode import resolve_destination
+from agent import run_agent
 
-app = FastAPI(title="VoiceGo API", version="1.0.0")
+app = FastAPI(title="VoiceGo API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,22 +30,14 @@ class TtsRequest(BaseModel):
     speed: str = ""
 
 
-class NluRequest(BaseModel):
-    text: str
-
-
 class GeocodeRequest(BaseModel):
     text: str
     lat: float | None = None
     lng: float | None = None
 
 
-class AgentRequest(BaseModel):
-    place: str
-    address: str = ""
-    vehicle: str = "bike"
-    km: float = 0
-    price: int = 0
+class ChatRequest(BaseModel):
+    messages: list[dict]
 
 
 @app.get("/api/health")
@@ -69,28 +61,13 @@ def voice_tts(req: TtsRequest):
     return Response(content=audio, media_type="audio/mpeg")
 
 
-@app.post("/api/voice/nlu")
-def voice_nlu(req: NluRequest):
-    """Parse a booking command with Gemini. Returns {ok:false} if unavailable so
-    the frontend can fall back to its on-device matcher."""
-    known = [{"id": n["id"], "name": n["name"]} for n in NODES]
-    result = extract_intent(req.text, known)
-    if not result:
-        return {"ok": False}
-    return {"ok": True, **result}
+@app.post("/api/agent/chat")
+def agent_chat(req: ChatRequest):
+    """One turn of the conversational booking agent (Groq + tools)."""
+    return run_agent(req.messages)
 
 
 @app.post("/api/voice/geocode")
 def voice_geocode(req: GeocodeRequest):
-    """Resolve an arbitrary spoken place name to a real address + coordinates
-    (Gemini grounded search -> Nominatim -> cross-validate)."""
+    """Debug: resolve a place name to a real address + coordinates."""
     return resolve_destination(req.text, req.lat, req.lng)
-
-
-@app.post("/api/agent/stream")
-def agent_stream(req: AgentRequest):
-    """Stream the AI agent's booking narration token-by-token (Gemini streaming)."""
-    return StreamingResponse(
-        stream_agent_narration(req.model_dump()),
-        media_type="text/plain; charset=utf-8",
-    )

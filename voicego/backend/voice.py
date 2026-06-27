@@ -24,8 +24,40 @@ FPT_API_KEY = os.getenv("FPT_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
+# Groq (OpenAI-compatible) — primary LLM for the agent: fast + generous limits.
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+GROQ_BASE_URL = "https://api.groq.com/openai/v1"
+
 ASR_URL = "https://api.fpt.ai/hmi/asr/general"
 TTS_URL = "https://api.fpt.ai/hmi/tts/v5"
+
+
+def groq_client():
+    """Return an OpenAI client pointed at Groq, or None if no key/SDK."""
+    if not GROQ_API_KEY:
+        return None
+    try:
+        from openai import OpenAI
+    except ImportError:
+        return None
+    return OpenAI(base_url=GROQ_BASE_URL, api_key=GROQ_API_KEY)
+
+
+def groq_json(prompt: str) -> str | None:
+    """One-shot Groq completion (used by geocode's no-grounding fallback)."""
+    client = groq_client()
+    if not client:
+        return None
+    try:
+        r = client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+        )
+        return (r.choices[0].message.content or "").strip()
+    except Exception:  # noqa: BLE001
+        return None
 
 
 def speech_to_text(audio_bytes: bytes) -> dict:
