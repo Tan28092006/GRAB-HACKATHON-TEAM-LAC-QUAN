@@ -43,9 +43,11 @@ SYSTEM_PROMPT = (
     "get_quote với loại xe MỚI và báo giá mới; KHÔNG hỏi lại điểm đến.\n"
     "3) Nếu người dùng ĐỒNG Ý → GỌI book_ride(vehicle), báo thông tin tài xế. "
     "Nếu người dùng KHÔNG đồng ý → HỎI 'Bạn muốn đổi loại xe, tìm địa điểm khác, hay không đặt nữa?'. "
-    "Đổi xe → bước 2b. Tìm chỗ khác → quay lại bước 1. Không đặt nữa → nói lời tạm biệt lịch sự và DỪNG.\n"
+    "Đổi xe → bước 2b. Tìm chỗ khác → quay lại bước 1. "
+    "BẤT CỨ KHI NÀO người dùng nói huỷ / thôi / dừng / không đặt nữa / không đi nữa → "
+    "GỌI end_conversation rồi nói MỘT câu tạm biệt ngắn. KHÔNG hỏi gì thêm.\n"
     "Quy tắc: tiếng Việt, mỗi lượt 1–2 câu, rõ ràng, ấm áp. Chỉ dùng số liệu từ tool, KHÔNG bịa. "
-    "Mặc định xe ôm điện (bike); đổi sang car nếu người dùng yêu cầu. "
+    "Mặc định xe ôm (bike); đổi sang car nếu người dùng yêu cầu. "
     "Khi cần dùng tool, hãy gọi qua cơ chế tool-calling; TUYỆT ĐỐI không viết tên hàm hay JSON vào câu trả lời."
 )
 
@@ -91,6 +93,12 @@ TOOLS = [
         "parameters": {"type": "object",
                        "properties": {"vehicle": {"type": "string", "enum": ["bike", "car"]}},
                        "required": ["vehicle"]},
+    }},
+    {"type": "function", "function": {
+        "name": "end_conversation",
+        "description": "Gọi khi người dùng muốn HUỶ / dừng / không đặt nữa. Kết thúc phiên, không hỏi tiếp.",
+        "parameters": {"type": "object",
+                       "properties": {"reason": {"type": "string"}}, "required": []},
     }},
 ]
 
@@ -316,6 +324,9 @@ def run_agent(messages: list[dict]) -> dict:
                 res = _do_book(msgs, args.get("vehicle", "bike"))
                 if res.get("ok"):
                     ui["booked"] = res
+            elif name == "end_conversation":
+                res = {"ok": True, "kind": "ended"}
+                ui["ended"] = True
             else:
                 res = {"ok": False, "error": "unknown_tool"}
             # Strip bulky geometry from what the LLM sees (save tokens).

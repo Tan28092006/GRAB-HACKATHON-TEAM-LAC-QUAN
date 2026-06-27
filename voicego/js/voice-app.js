@@ -71,28 +71,40 @@ class VoiceBookingApp {
         if (speak) this.speak(sub ? `${main} ${sub}` : main);
     }
 
-    /** Speak `text` and resolve when playback FINISHES (so we can then auto-listen). */
+    /** Speak via FPT Vietnamese TTS — the SAME engine for every line (greeting,
+     *  questions, booking) so the voice never changes. Retries up to 3x before any
+     *  browser fallback, so a transient blip doesn't switch to a different voice. */
     async speak(text) {
         if (!text) return;
-        if (!BACKEND_URL) { await this._browserSpeak(text); return; }
-        try {
-            const res = await fetch(`${BACKEND_URL}/api/voice/tts`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text }),
-                signal: AbortSignal.timeout(15000),
-            });
-            if (!res.ok) throw new Error("tts " + res.status);
-            const blob = await res.blob();
-            this.audio.src = URL.createObjectURL(blob);
-            await new Promise((resolve) => {
-                this.audio.onended = resolve;
-                this.audio.onerror = resolve;
-                this.audio.play().catch(resolve);
-            });
-        } catch (e) {
-            await this._browserSpeak(text);
+        // Stop any audio still playing so lines don't overlap.
+        try { this.audio.pause(); } catch (e) {}
+        if (BACKEND_URL) {
+            for (let attempt = 0; attempt < 3; attempt++) {
+                try {
+                    const res = await fetch(`${BACKEND_URL}/api/voice/tts`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text }),
+                        signal: AbortSignal.timeout(20000),
+                    });
+                    if (!res.ok) throw new Error("tts " + res.status);
+                    const blob = await res.blob();
+                    if (!blob || blob.size < 500) throw new Error("tts empty");
+                    const audio = new Audio(URL.createObjectURL(blob));  // fresh element
+                    this.audio = audio;
+                    await new Promise((resolve) => {
+                        audio.onended = resolve;
+                        audio.onerror = resolve;
+                        const p = audio.play();
+                        if (p && p.catch) p.catch(() => resolve());
+                    });
+                    return;  // FPT success
+                } catch (e) {
+                    await this._sleep(300);  // brief backoff, then retry FPT
+                }
+            }
         }
+        await this._browserSpeak(text);  // last resort only
     }
 
     _browserSpeak(text) {
@@ -100,6 +112,9 @@ class VoiceBookingApp {
             if (!("speechSynthesis" in window)) { resolve(); return; }
             const u = new SpeechSynthesisUtterance(text);
             u.lang = "vi-VN";
+            // Prefer an actual Vietnamese voice so it doesn't read VN with an EN voice.
+            const vi = (window.speechSynthesis.getVoices() || []).find(v => /vi(-|_)?/i.test(v.lang));
+            if (vi) u.voice = vi;
             u.onend = resolve;
             u.onerror = resolve;
             window.speechSynthesis.cancel();
@@ -321,7 +336,16 @@ class VoiceBookingApp {
             if (ui.booked) {
                 await this._showBooked(ui.booked, reply);
                 this.busy = false;
+                this._resetTrip();
                 return; // conversation done — no auto-listen
+            }
+            // User cancelled / ended -> say goodbye then STOP (no auto-listen).
+            if (ui.ended) {
+                this.announce(reply || "Đã huỷ.", "", false);
+                this.busy = false;
+                await this.speak(reply || "Đã huỷ chuyến. Cảm ơn bạn.");
+                this._resetTrip();
+                return;
             }
             // Speak the reply, then automatically listen again (hands-free).
             this.announce(reply || "…", "", false);
@@ -375,6 +399,9 @@ class VoiceBookingApp {
         const spinner = this.els.agentOverlay && this.els.agentOverlay.querySelector(".agent-spinner");
         if (spinner) spinner.style.display = "none";
         this.speak(`${reply} ${driver} ${booked.driverAlertMessage || ""}`);
+        // Speak the agent's concise Vietnamese confirmation (FPT, same voice as the
+        // whole flow). Driver details are shown visually.
+        await this.speak(reply || driver);
     }
 
     /** Smooth typewriter (continuous like ChatGPT) into a visual element. */
