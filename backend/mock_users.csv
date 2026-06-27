@@ -1,0 +1,6 @@
+full_name,email,phone,password,role,total_reward_points
+Khách hàng 1,passenger1@grab.com,0901234567,password123,passenger,100
+Khách hàng 2,passenger2@grab.com,0902345678,password123,passenger,50
+Tài xế Nguyễn Văn A,driver1@grab.com,0912345678,password123,driver,200
+Tài xế Trần Thị B,driver2@grab.com,0913456789,password123,driver,150
+Admin User,admin@grab.com,0999999999,password123,admin,0

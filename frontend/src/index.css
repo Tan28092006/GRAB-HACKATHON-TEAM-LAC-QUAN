@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+/*
+ * GrabAssist – Custom Design Tokens & Base Styles
+ * Ultra high-contrast theme for visually impaired users
+ */
+
+/* ───────────────────────────────── Custom Theme ─────────────────────────────── */
+@theme {
+  --color-grab-green: #00b14f;
+  --color-grab-green-dark: #009a44;
+  --color-grab-yellow: #ffd600;
+  --color-grab-yellow-light: #fff176;
+  --color-surface-dark: #0a0a0a;
+  --color-surface-card: #1a1a1a;
+  --color-surface-elevated: #262626;
+  --color-success-bg: #0d3320;
+  --color-success-border: #10b981;
+  --color-danger: #ef4444;
+  --color-danger-bg: #3b1111;
+  --font-family-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ────────────────────────────── Base Layer Resets ────────────────────────────── */
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply antialiased;
+    font-family: var(--font-family-sans);
+  }
+
+  /* High-contrast focus ring for keyboard navigation / a11y */
+  :focus-visible {
+    outline: 3px solid var(--color-grab-yellow);
+    outline-offset: 3px;
+    border-radius: 8px;
+  }
+}
+
+/* ────────────────────────── Keyframe Animations ─────────────────────────────── */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 177, 79, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 30px 10px rgba(0, 177, 79, 0.25);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-8px);
+  }
+  40%, 80% {
+    transform: translateX(8px);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ──────────────────────────── Utility Classes ────────────────────────────────── */
+@utility animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@utility animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+@utility animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out both;
+}
+
+@utility animate-check-pop {
+  animation: check-pop 0.6s ease-out both;
+}
