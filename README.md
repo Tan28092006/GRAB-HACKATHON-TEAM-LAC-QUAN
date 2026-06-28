@@ -143,7 +143,6 @@ Allows users to book a ride entirely through voice commands without interacting 
 5. The user confirms the booking.
 6. The system creates the ride request and announces the driver's information.
 
----
 
 ### 📍 Feature 2 - Accessible Destination Recommendations
 
@@ -159,7 +158,6 @@ The AI recommends destinations and pickup/drop-off points that are more accessib
 4. The user selects one of the recommended locations.
 5. The ride booking process continues.
 
----
 
 ### 🔐 Feature 3 - Driver Verification with a Secure PIN
 
@@ -174,6 +172,11 @@ To prevent users from boarding the wrong vehicle, the system generates a unique 
 3. The driver enters the PIN into the system.
 4. The system verifies the PIN.
 5. If the PIN is correct, the trip is confirmed.
-6. The user boards the vehicle and begins the journey safely. 
+6. The user boards the vehicle and begins the journey safely.
+
+
+## References
+
+- User interview records: https://drive.google.com/file/d/1Ulro0xne8gwVoT0kMiwNmzdKeDphyhUJ/view?usp=sharing
 
 
