@@ -11,7 +11,6 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import os
 
-from data import NODES
 from voice import speech_to_text, text_to_speech, whisper_stt
 from geocode import resolve_destination
 from agent import run_agent
@@ -128,7 +127,7 @@ def db_response(fn, *args, **kwargs):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "service": "voicego", "places": len(NODES), "mongo": mongo_status()}
+    return {"status": "ok", "service": "voicego", "mongo": mongo_status()}
 
 
 @app.get("/api/db/status")
