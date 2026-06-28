@@ -121,3 +121,59 @@ Provide spoken updates about trip progress, estimated arrival time, and route st
 Our solution goes beyond making ride-hailing applications **usable** for visually impaired users—it aims to make them **safe, intuitive, and empowering**.
 
 By combining accessibility-first interaction design with safety-focused features, we help visually impaired users travel with greater confidence, independence, and peace of mind.
+
+
+---
+
+
+## Feature
+
+### 🎙️ Feature 1 - Voice-based Ride Booking
+
+**Description**
+
+Allows users to book a ride entirely through voice commands without interacting with the screen. The AI processes the user's request, confirms the pickup location, destination, and ride type through natural conversation, making Grab more accessible for visually impaired users.
+
+**User Flow**
+
+1. The user activates **Đặt chuyến bằng giọng nói**.
+2. The user states their desired destination.
+3. The AI suggests available ride options.
+4. The AI confirms the pickup location, destination, and selected fare.
+5. The user confirms the booking.
+6. The system creates the ride request and announces the driver's information.
+
+---
+
+### 📍 Feature 2 - Accessible Destination Recommendations
+
+**Description**
+
+The AI recommends destinations and pickup/drop-off points that are more accessible for visually impaired users. It prioritizes locations with safe walking paths, clearly designated pickup areas, and places verified by Grab or the community. If the selected location is difficult to access, the system suggests nearby alternatives.
+
+**User Flow**
+
+1. The user enters or speaks their destination.
+2. The AI evaluates the accessibility of the destination.
+3. The system displays more accessible nearby destinations or pickup points.
+4. The user selects one of the recommended locations.
+5. The ride booking process continues.
+
+---
+
+### 🔐 Feature 3 - Driver Verification with a Secure PIN
+
+**Description**
+
+To prevent users from boarding the wrong vehicle, the system generates a unique PIN for each trip. After the driver arrives, the passenger shares the PIN with the driver. The trip can only begin once the correct PIN has been entered and verified.
+
+**User Flow**
+
+1. After the driver confirms arrival at the pickup location, the system generates a unique PIN for the trip.
+2. The user receives the PIN through voice guidance.
+3. The driver enters the PIN into the system.
+4. The system verifies the PIN.
+5. If the PIN is correct, the trip is confirmed.
+6. The user boards the vehicle and begins the journey safely. 
+
+
