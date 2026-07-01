@@ -6,9 +6,9 @@ import VoiceRecorder from '../services/voiceRecorder';
 import { connectSocket, emitPassengerWaiting, disconnectSocket } from '../services/socket';
 import { startBeacon, stopBeacon, setBeaconIntensity } from '../services/beacon';
 
-// STT engine. TẠM THỜI mặc định FPT.AI (để test trên điện thoại); mở với
-// ?stt=whisper để quay lại Groq Whisper. (Backend: fpt -> FPT trước, Groq fallback.)
-const STT_ENGINE = new URLSearchParams(window.location.search).get('stt') || 'fpt';
+// STT engine. Mặc định Groq Whisper (whisper-large-v3) — FPT ASR đã hết quota
+// (free/paid = 0 -> 429). Mở với ?stt=fpt để thử lại FPT nếu sau này nạp quota.
+const STT_ENGINE = new URLSearchParams(window.location.search).get('stt') || 'whisper';
 
 export default function useVoiceApp() {
   const { state, dispatch } = useApp();

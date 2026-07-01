@@ -29,7 +29,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")               # LLM (agent + geocod
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")  # smart agent brain
 GROQ_GEOCODE_MODEL = os.getenv("GROQ_GEOCODE_MODEL", "llama-3.1-8b-instant")  # cheap
 GROQ_WHISPER_KEY = os.getenv("GROQ_WHISPER_KEY", "")       # Whisper STT only
-GROQ_WHISPER_MODEL = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo")
+GROQ_WHISPER_MODEL = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3")  # full > turbo cho tiếng Việt
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 
 ASR_URL = "https://api.fpt.ai/hmi/asr/general"

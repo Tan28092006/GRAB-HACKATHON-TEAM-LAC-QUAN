@@ -251,17 +251,24 @@ def admin_reject_report(report_id: str, req: RejectReportRequest):
 @app.post("/api/voice/stt")
 async def voice_stt(file: UploadFile = File(...), engine: str = "whisper"):
     """Transcribe Vietnamese audio. Default: Groq Whisper (primary) + FPT fallback.
-    Pass ?engine=fpt to TEST FPT.AI ASR first (Groq fallback)."""
+    Pass ?engine=fpt to try FPT.AI ASR first (Groq fallback).
+    `engine_used` says which engine ACTUALLY produced the text (no silent fallback)."""
     audio = await file.read()
+    fname = file.filename or "speech.wav"
     if engine == "fpt":
-        result = speech_to_text(audio)                          # FPT first (test)
+        result = speech_to_text(audio)                          # FPT first
+        engine_used = "fpt" if result.get("text") else None
         if not result.get("text"):
-            result = whisper_stt(audio, file.filename or "speech.wav")
+            result = whisper_stt(audio, fname)                  # -> Groq Whisper
+            engine_used = "whisper" if result.get("text") else "none"
     else:
-        result = whisper_stt(audio, file.filename or "speech.wav")  # Groq Whisper (default)
+        result = whisper_stt(audio, fname)                      # Groq Whisper (default)
+        engine_used = "whisper" if result.get("text") else None
         if not result.get("text"):
-            result = speech_to_text(audio)
-    result["engine"] = engine
+            result = speech_to_text(audio)                      # -> FPT fallback
+            engine_used = "fpt" if result.get("text") else "none"
+    result["engine"] = engine            # engine requested
+    result["engine_used"] = engine_used  # engine that actually produced the text
     return result
 
 
