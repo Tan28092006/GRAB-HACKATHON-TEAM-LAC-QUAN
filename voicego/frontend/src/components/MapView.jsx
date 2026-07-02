@@ -65,7 +65,8 @@ export default function MapView() {
     }
 
     const dest = state.destination;
-    if (!dest || !ok(dest.lat) || !ok(dest.lng)) return;
+    // Only the pickup so far -> keep it centered (follows the rider's GPS).
+    if (!dest || !ok(dest.lat) || !ok(dest.lng)) { map.setView([origin.lat, origin.lng]); return; }
     const destColor = dest.accessible ? '#00b14f' : '#ef5350';
     L.marker([dest.lat, dest.lng], { icon: pin(destColor, dest.accessible ? '♿' : '📍') })
       .bindPopup(`<b>${dest.accessible ? '♿ Điểm đến (dễ tiếp cận)' : 'Điểm đến'}</b><br>${dest.name}`)

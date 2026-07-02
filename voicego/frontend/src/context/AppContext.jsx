@@ -32,6 +32,7 @@ function appReducer(state, action) {
     case 'SET_STATE': return { ...state, appState: action.payload };
     case 'SET_SCREEN': return { ...state, screen: action.payload };
     case 'SET_USER': return { ...state, user: action.payload };
+    case 'SET_ORIGIN': return { ...state, origin: { ...state.origin, ...action.payload } };
     case 'SET_BACKEND_ONLINE': return { ...state, backendOnline: action.payload };
     case 'SET_DESTINATION': return { ...state, destination: action.payload };
     case 'SET_CANDIDATES': return { ...state, candidates: action.payload };

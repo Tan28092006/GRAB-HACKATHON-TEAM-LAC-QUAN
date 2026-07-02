@@ -41,11 +41,16 @@ export default function useVoiceApp() {
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (pos) => { pickupRef.current = { lat: pos.coords.latitude, lng: pos.coords.longitude }; },
+      (pos) => {
+        const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        pickupRef.current = { lat, lng };
+        // Move the pickup marker (🧍) on the map to the real GPS spot, not ĐH Quốc tế.
+        dispatch({ type: 'SET_ORIGIN', payload: { name: 'Vị trí của bạn', lat, lng } });
+      },
       (err) => { console.warn('Geolocation unavailable, using default pickup:', err?.message); },
       { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 },
     );
-  }, []);
+  }, [dispatch]);
 
   // Stream the agent reply word-by-word onto the stage (async, like ChatGPT) so
   // judges see the LLM "typing" while the TTS speaks.
