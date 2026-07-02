@@ -439,11 +439,24 @@ export default function useVoiceApp() {
     return () => { disconnectSocket(); stopSpeech(); stopBeacon(); };
   }, []);
 
+  // Re-read the current PIN aloud on demand. Blind riders just TAP the screen
+  // (no button to find) — used while the driver-arrived PIN is showing.
+  const repeatPin = useCallback(() => {
+    const pin = state.pin;
+    if (!pin) return;
+    const pinStr = String(pin).split('').join(' ');
+    const name = state.driver?.name || 'của bạn';
+    const plate = (state.driver?.plate || '').replace(/[^0-9A-Za-zĐđ]/g, '').split('').join(' ');
+    stopSpeech();
+    speak(`Mã PIN của bạn là ${pinStr}. Tài xế ${name}${plate ? `, biển số ${plate}` : ''}. Vui lòng đọc mã này cho tài xế để xác nhận.`);
+  }, [state.pin, state.driver]);
+
   return {
     state,
     startListening,
     stopListening,
     toggleListening,
+    repeatPin,
     resetTrip: useCallback(() => { stopBeacon(); disconnectSocket(); dispatch({ type: 'RESET_TRIP' }); }, [dispatch]),
   };
 }

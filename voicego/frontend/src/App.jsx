@@ -17,7 +17,7 @@ import { unlockAudio } from './services/tts';
 import './styles/components/VoiceScreen.css';
 
 function AppContent({ onBack }) {
-  const { state, toggleListening, resetTrip } = useVoiceApp();
+  const { state, toggleListening, resetTrip, repeatPin } = useVoiceApp();
   const phase = state.appState;
   const riding = phase === 'in_progress' || phase === 'completed';   // trip underway/done
   // Map is shown in these phases (driven by appState, NOT by whether data exists —
@@ -41,7 +41,7 @@ function AppContent({ onBack }) {
           <span className="voice-controls-hint">{state.recording ? 'Đang nghe… chạm để dừng' : 'Chạm để nói lại'}</span>
         </div>
       )}
-      <TripOverlay onDismiss={resetTrip} />
+      <TripOverlay onDismiss={resetTrip} onRepeatPin={repeatPin} />
       {phase === 'completed' && <RideArrived onHome={onBack} />}
     </div>
   );

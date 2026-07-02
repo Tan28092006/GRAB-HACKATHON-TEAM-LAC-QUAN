@@ -31,8 +31,8 @@ Khi tài xế đến nơi, người khiếm thị **không thấy xe ở đâu**
 VoiceGo xử lý “**10 mét cuối**”:
 
 - 📣 **Trấn an bằng giọng nói** theo khoảng cách: *“Tài xế còn cách bạn khoảng 40 mét, đang tới. Bạn cứ đứng yên chỗ an toàn.”*
-- 🔦 **Điện thoại khách phát tín hiệu định vị**: màn hình **nhấp nháy sáng** + **kêu bíp** + **rung** → tài xế (sáng mắt) **thấy và nghe** ra khách giữa đám đông. Càng gần, nháy/bíp càng nhanh.
-- 🔢 **Mã PIN an toàn**: app **đọc PIN** cho khách nghe; tài xế nhập đúng PIN mới xác nhận đón → chống lên nhầm xe.
+- 🔦 **Điện thoại khách phát tín hiệu định vị**: màn hình **nhấp nháy sáng** + **rung** → tài xế (sáng mắt) **thấy** ra khách giữa đám đông. Càng gần, nháy/rung càng nhanh. *(Không phát tiếng — để khỏi lấn giọng đọc mã PIN.)*
+- 🔢 **Mã PIN an toàn + đọc lại dễ dàng**: app **đọc PIN** cho khách nghe; **chạm vào bất kỳ đâu trên màn hình để nghe lại mã** (không cần tìm nút — dành cho người khiếm thị). Tài xế nhập đúng PIN mới xác nhận đón → chống lên nhầm xe.
 - 🚗 **Màn hình tài xế hiện khoảng cách tới khách** theo thời gian thực.
 
 *(Trong bản demo một mình: sau khi đặt, một “tài xế mô phỏng” tự nhận cuốc → tới gần →
