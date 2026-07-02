@@ -15,8 +15,7 @@ function LoginPage({ onLogin }) {
     fetch(`${BACKEND_URL}/api/health`).catch(() => {});
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const doLogin = async (em, pw) => {
     setError("");
     setIsLoading(true);
     setSlow(false);
@@ -29,7 +28,7 @@ function LoginPage({ onLogin }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: em, password: pw }),
       });
 
       const data = await res.json();
@@ -49,6 +48,21 @@ function LoginPage({ onLogin }) {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    doLogin(email, password);
+  };
+
+  // Đăng nhập demo 1 chạm — không cần gõ tài khoản (dành cho người xem CV/HR).
+  const quickDemo = (role) => {
+    const creds = role === "driver"
+      ? { em: "driver.a@example.com", pw: "password123" }
+      : { em: "minhanh.voicego@example.com", pw: "password123" };
+    setEmail(creds.em);
+    setPassword(creds.pw);
+    doLogin(creds.em, creds.pw);
+  };
+
   return (
     <div className="login-container">
       <div className="login-header">
@@ -66,6 +80,38 @@ function LoginPage({ onLogin }) {
       </div>
 
       <div className="login-form-container">
+        {/* Trải nghiệm nhanh — không cần tài khoản (cho người xem CV / HR) */}
+        <div style={{ marginBottom: 18 }}>
+          <button
+            type="button"
+            onClick={() => quickDemo("passenger")}
+            disabled={isLoading}
+            className="login-button"
+            style={{ background: "#00b14f", marginBottom: 10 }}
+          >
+            🎙️ Dùng thử ngay — Khách khiếm thị (demo)
+          </button>
+          <button
+            type="button"
+            onClick={() => quickDemo("driver")}
+            disabled={isLoading}
+            className="login-button"
+            style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.25)" }}
+          >
+            🚗 Vào vai Tài xế (demo)
+          </button>
+          <p style={{ textAlign: "center", fontSize: 12, color: "#9ca3af", margin: "12px 0 0" }}>
+            Không cần đăng nhập — bấm “Dùng thử ngay” để trải nghiệm đặt xe bằng giọng nói.
+            Chuyến đi tự hoàn tất nếu chưa có tài xế online.
+          </p>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "6px 0 16px", color: "#6b7280", fontSize: 12 }}>
+          <span style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.12)" }} />
+          hoặc đăng nhập
+          <span style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.12)" }} />
+        </div>
+
         <form onSubmit={handleSubmit} className="login-form">
           {error && (
             <div className="login-error">

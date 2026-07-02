@@ -20,6 +20,9 @@ Khớp đúng "hợp đồng" sự kiện mà frontend đang dùng:
 
 Trạng thái giữ trong RAM, mô hình 1 chuyến đang chạy tại một thời điểm — vừa đủ cho
 demo hackathon (1 khách + 1 tài xế). Nhiều chuyến song song KHÔNG nằm trong phạm vi.
+
+Nếu KHÔNG có tài xế thật nào online, một "tài xế mô phỏng" (_simulate_driver) sẽ tự
+chạy hết luồng để người xem một mình vẫn thấy trọn chuyến đi.
 """
 import math
 import random
@@ -107,10 +110,59 @@ async def passenger_waiting(sid, data):
         # passenger for the "last 10 metres" find-each-other step. May be None.
         "passenger_loc": _coords(data),
     })
+    nonce = _trip["nonce"] = random.randint(1, 1_000_000_000)
     # Báo cho mọi tài xế online là có cuốc mới.
     payload = {"accessibility": _trip["accessibility"]}
     for d in list(_drivers):
         await sio.emit("new-ride", payload, to=d)
+    # Solo-reviewer fallback: KHÔNG có tài xế thật nào online -> tài xế mô phỏng
+    # tự chạy hết luồng để người xem 1 mình (vd HR quét CV) thấy trọn chuyến đi.
+    if not _drivers:
+        sio.start_background_task(_simulate_driver, sid, nonce)
+
+
+async def _simulate_driver(passenger_sid, nonce):
+    """No human driver online -> auto-drive the trip so a solo viewer sees the
+    full flow: accept -> approach -> arrive + PIN -> auto-verify -> complete.
+    Bails if the trip changes (real driver accepts, passenger leaves, or a new
+    booking starts)."""
+    def alive():
+        return _trip.get("passenger_sid") == passenger_sid and _trip.get("nonce") == nonce
+
+    await sio.sleep(3)
+    if not alive() or _trip.get("accepted"):
+        return
+    _trip["accepted"] = True
+    _trip["simulated"] = True
+    name, plate = _trip["driver_name"], _trip["plate"]
+    await sio.emit("driver-accepted", {"driverName": name, "licensePlate": plate}, to=passenger_sid)
+
+    # Approaching: a couple of decreasing distances so the rider hears reassurance
+    # and (after arrival) the locator beacon ramps up.
+    for meters, wait in ((40, 6), (10, 5)):
+        await sio.sleep(wait)
+        if not alive():
+            return
+        await sio.emit("driver-distance", {"meters": meters}, to=passenger_sid)
+
+    await sio.sleep(3)
+    if not alive():
+        return
+    await sio.emit("driver-arrived",
+                   {"driverName": name, "licensePlate": plate, "pin": _trip["pin"]},
+                   to=passenger_sid)
+
+    # Let the rider hear the PIN read aloud (twice), then auto-confirm boarding.
+    await sio.sleep(15)
+    if not alive():
+        return
+    await sio.emit("pin-verified", {}, to=passenger_sid)
+
+    await sio.sleep(7)
+    if not alive():
+        return
+    await sio.emit("trip-completed", {}, to=passenger_sid)
+    _trip.clear()
 
 
 @sio.on("driver-location")
@@ -136,6 +188,7 @@ async def driver_location(sid, data):
 async def driver_accept(sid, data):
     if not _trip.get("passenger_sid"):
         return
+    _trip["accepted"] = True   # a real driver took it -> stop any simulated driver
     name = _driver_name((data or {}).get("userId")) or _trip["driver_name"]
     _trip["driver_name"] = name
     # -> Khách: "đã có tài xế nhận chuyến" (CHƯA lộ PIN).

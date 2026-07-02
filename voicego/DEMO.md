@@ -1,39 +1,72 @@
-# VoiceGo — Hướng dẫn truy cập bản DEMO (chạy local)
+# VoiceGo — Hướng dẫn trải nghiệm bản DEMO
 
-> Bản demo chạy **local trên máy của nhóm** (chưa deploy). Link demo:
+**VoiceGo** là ứng dụng **đặt xe bằng giọng nói cho người khiếm thị** — nói điểm đến,
+trợ lý AI lo phần còn lại, và hỗ trợ đặc biệt ở khâu **tìm nhau khi tài xế đã tới**.
+
+## 🔗 Link demo (bấm là chạy, không cần cài gì)
+
+> ## https://voicego.onrender.com
 >
-> ## 🔗 https://10.236.55.216:5173/
->
-> ⚠️ **Bắt buộc dùng cùng mạng WiFi** với máy chủ demo (đây là địa chỉ LAN nội bộ).
-> Máy chủ phải đang chạy 3 tiến trình: backend (8000), realtime tài xế (3001), web (5173).
+> Mở được trên **điện thoại lẫn máy tính**. Nên dùng **Chrome trên Android** để có
+> đủ rung + đèn báo. *(Nếu nhóm đã bật Vercel thì thay bằng link Vercel cho nhanh hơn.)*
 
-## 1. Vào web (qua cảnh báo chứng chỉ tự ký)
-Link dùng **HTTPS chứng chỉ tự ký** (để micro hoạt động) nên trình duyệt báo **“Not secure / Your connection is not private”**. Đây là server dev của nhóm, **an toàn** — cứ bỏ qua cảnh báo:
+⏳ **Lần mở đầu có thể chờ ~30 giây** — máy chủ miễn phí (Render) đang "thức dậy".
+App sẽ hiện "đang khởi động", cứ đợi một chút là vào.
 
-**Chrome / Edge (máy tính):**
-1. Ở trang cảnh báo → bấm **“Advanced” (Nâng cao)**.
-2. Bấm **“Proceed to 10.236.55.216 (unsafe)” / “Tiếp tục truy cập…”**.
-   - *Mẹo nhanh:* nếu không thấy nút, **bấm vào vùng trống của trang rồi gõ** `thisisunsafe` (Chrome sẽ vào luôn).
+---
 
-**Chrome (Android):** trang cảnh báo → **“Advanced”** → **“Proceed to 10.236.55.216 (unsafe)”**.
+## ▶️ Trải nghiệm trong 30 giây (không cần tài khoản)
 
-**Safari (iPhone):** **“Show Details”** → **“visit this website”** → xác nhận.
+1. Mở link trên.
+2. Bấm nút xanh **“🎙️ Dùng thử ngay — Khách khiếm thị (demo)”** → vào thẳng, **khỏi gõ tài khoản**.
+3. Khi trình duyệt hỏi, **Cho phép Micro** và **Cho phép Vị trí** (app đặt xe bằng giọng nói, và lấy GPS làm điểm đón).
+4. Nghe trợ lý chào → **nói điểm đến**, ví dụ: *“Chợ Bến Thành”* hoặc *“Landmark 81”*.
+5. Trả lời các câu hỏi bằng giọng nói: chọn **xe máy / ô tô** → nghe **giá + quãng đường** → nói **“đồng ý”** để đặt.
+6. Sau khi đặt, **chuyến đi tự hoàn tất** (xem mục bên dưới) — không cần thiết bị thứ hai.
 
-## 2. Cho phép Micro
-Lần đầu trình duyệt hỏi quyền **micro → chọn “Allow / Cho phép”** (app đặt xe bằng giọng nói nên cần micro). Nếu lỡ chặn: bấm ổ khóa/“Not secure” trên thanh địa chỉ → bật lại Microphone → tải lại trang.
+> 💡 Toàn bộ thao tác **rảnh tay bằng giọng nói**. Không cần nhìn màn hình.
 
-## 3. Đăng nhập (tài khoản demo)
-- **Khách (người khiếm thị):** `minhanh.voicego@example.com` / `password123`
-- **Tài xế:** `driver.a@example.com` / `password123`
+---
 
-## 4. Demo luồng tài xế nhận cuốc (cần 2 thiết bị, **cùng WiFi**)
-Vì chạy local, muốn thử luồng **tài xế nhận cuốc + mã PIN** cần 2 màn hình, **cùng mạng WiFi với máy chủ**:
-1. **Thiết bị A (khách):** mở link trên → đăng nhập `minhanh...` → đặt xe bằng giọng nói → tới bước **“Đang tìm tài xế…”**.
-2. **Thiết bị B (tài xế):** mở **cùng** `https://10.236.55.216:5173/` (qua cảnh báo chứng chỉ như trên) → đăng nhập `driver.a...` → **“Nhận cuốc” → “Tôi đã đến nơi”** → nhập mã PIN mà bên khách đọc lên.
-   - *Tiện nhất:* thiết bị tài xế dùng **chính máy chủ** mở `https://localhost:5173/` (khỏi lo cùng WiFi).
+## 🤝 Điểm nhấn: khâu “tìm nhau” khi xe đã tới (dành cho người khiếm thị)
 
-> Thứ tự: **khách đặt trước** (vào hàng chờ) rồi **tài xế mới bấm nhận**. Mỗi lượt demo 1 khách.
+Khi tài xế đến nơi, người khiếm thị **không thấy xe ở đâu**, tài xế cũng khó nhận ra khách.
+VoiceGo xử lý “**10 mét cuối**”:
 
-## 5. Nếu link không vào được
-- Kiểm tra **cùng WiFi** với máy chủ; máy chủ còn chạy 5173/8000/3001.
-- IP máy chủ có thể đổi khi đổi WiFi — lấy IP mới bằng `ipconfig` (IPv4) rồi thay vào link `https://<IP>:5173/`.
+- 📣 **Trấn an bằng giọng nói** theo khoảng cách: *“Tài xế còn cách bạn khoảng 40 mét, đang tới. Bạn cứ đứng yên chỗ an toàn.”*
+- 🔦 **Điện thoại khách phát tín hiệu định vị**: màn hình **nhấp nháy sáng** + **kêu bíp** + **rung** → tài xế (sáng mắt) **thấy và nghe** ra khách giữa đám đông. Càng gần, nháy/bíp càng nhanh.
+- 🔢 **Mã PIN an toàn**: app **đọc PIN** cho khách nghe; tài xế nhập đúng PIN mới xác nhận đón → chống lên nhầm xe.
+- 🚗 **Màn hình tài xế hiện khoảng cách tới khách** theo thời gian thực.
+
+*(Trong bản demo một mình: sau khi đặt, một “tài xế mô phỏng” tự nhận cuốc → tới gần →
+đến nơi → app đọc PIN → tự xác nhận → hoàn tất, để bạn thấy trọn luồng mà không cần thiết bị thứ hai.)*
+
+---
+
+## 👥 (Tuỳ chọn) Demo luồng tài xế THẬT bằng 2 thiết bị
+
+Muốn tự tay đóng vai tài xế thay cho tài xế mô phỏng:
+
+1. **Thiết bị A (khách):** bấm **“Dùng thử ngay — Khách demo”** → đặt xe → tới **“Đang tìm tài xế…”**.
+2. **Thiết bị B (tài xế):** mở cùng link → bấm **“🚗 Vào vai Tài xế (demo)”** → **“Nhận cuốc”** → **“Tôi đã đến nơi”** → nhập **mã PIN** mà bên khách đọc lên.
+
+> Thứ tự: **khách đặt trước**, rồi **tài xế mới bấm nhận**. Nếu có tài xế thật online,
+> hệ thống ưu tiên tài xế thật (không dùng tài xế mô phỏng).
+
+---
+
+## 🔑 Tài khoản demo (nếu muốn đăng nhập thủ công)
+
+| Vai | Email | Mật khẩu |
+|---|---|---|
+| Khách (khiếm thị) | `minhanh.voicego@example.com` | `password123` |
+| Tài xế | `driver.a@example.com` | `password123` |
+
+---
+
+## ❓ Nếu gặp trục trặc
+
+- **Chờ lâu ở lần đầu:** máy chủ free đang khởi động (~30s), thử lại sau chút.
+- **Không nói được:** kiểm tra đã **Cho phép Micro** (bấm ổ khoá trên thanh địa chỉ → bật Microphone → tải lại).
+- **Không thấy đèn/rung khi xe tới:** rung + đèn báo tốt nhất trên **Chrome Android**; iPhone hạn chế rung.
+- **Điểm đón sai:** nếu **từ chối quyền Vị trí**, hệ thống dùng điểm đón mặc định — cho phép GPS để đúng vị trí của bạn.
